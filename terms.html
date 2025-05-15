@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Felhasználási feltételek | Mcstatus.hu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --primary: #00e676;
+            --primary-dark: #00a152;
+            --primary-light: #5efc82;
+            --secondary: #6200ea;
+            --background: #121212;
+            --surface: #1e1e1e;
+            --surface-dark: #121212;
+            --surface-light: #2d2d2d;
+            --error: #cf6679;
+            --on-primary: #000000;
+            --on-secondary: #ffffff;
+            --on-background: #ffffff;
+            --on-surface: #ffffff;
+            --on-error: #000000;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--on-background);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .app-header {
+            background-color: var(--surface-dark);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.75rem;
+        }
+
+        .logo-container h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--on-surface);
+        }
+
+        .logo-container h1 span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--on-surface);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .nav-link.active {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .discord-btn {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .discord-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Page Header Styles */
+        .page-header {
+            background: linear-gradient(135deg, rgba(0, 230, 118, 0.1), transparent);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .page-header h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+        }
+
+        .page-header p {
+            color: var(--on-surface);
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+
+        /* Terms & Privacy Pages */
+        .terms-container {
+            background-color: var(--surface);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .terms-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .terms-content section {
+            margin-bottom: 2rem;
+        }
+
+        .terms-content h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .terms-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .terms-content ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .terms-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .terms-content a {
+            color: var(--primary-light);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .terms-content a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .app-footer {
+            background-color: var(--surface-dark);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--on-surface);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--on-surface);
+            font-size: 1.25rem;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .terms-container {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-header {
+                padding: 1rem;
+            }
+            
+            .page-header {
+                padding: 1rem;
+            }
+            
+            .page-header h2 {
+                font-size: 1.5rem;
+            }
+            
+            .terms-container {
+                padding: 1rem;
+            }
+            
+            .footer-links, .social-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-container">
+                <a href="index.html" class="logo-container">
+                    <i class="fas fa-server logo-icon"></i>
+                    <h1>Mcstatus<span>.hu</span></h1>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Főoldal</a>
+                    <a href="history.html" class="nav-link"><i class="fas fa-history"></i> Előzmények</a>
+                    <a href="favorites.html" class="nav-link"><i class="fas fa-star"></i> Kedvencek</a>
+                </nav>
+                <a href="https://discord.com/invite/tjcQnnJt8H" target="_blank" class="discord-btn">
+                    <i class="fab fa-discord"></i> Közösség
+                </a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h2><i class="fas fa-file-contract"></i> Felhasználási feltételek</h2>
+                <p>Utoljára frissítve: 2025. május 12.</p>
+            </div>
+
+            <div class="terms-container">
+                <div class="terms-content">
+                    <section>
+                        <h3>1. Általános rendelkezések</h3>
+                        <p>A Mcstatus.hu weboldal (a továbbiakban: "Szolgáltatás") használatával Ön elfogadja jelen Felhasználási Feltételeket. A Szolgáltatás tulajdonosa és üzemeltetője fenntartja a jogot, hogy ezeket a feltételeket bármikor módosítsa.</p>
+                    </section>
+
+                    <section>
+                        <h3>2. A Szolgáltatás leírása</h3>
+                        <p>A Mcstatus.hu egy Minecraft szerver állapot-ellenőrző eszköz, amely valós idejű információkat nyújt a megadott Minecraft szerverekről. A szolgáltatás külső API-kat használ az adatok beszerzéséhez.</p>
+                    </section>
+
+                    <section>
+                        <h3>3. Felhasználói kötelezettségek</h3>
+                        <p>A Szolgáltatás használata során Ön vállalja, hogy:</p>
+                        <ul>
+                            <li>Nem használja a Szolgáltatást jogellenes célokra</li>
+                            <li>Nem terheli túl a szervereket gyakori lekérdezésekkel</li>
+                            <li>Nem próbál meg behatolni a rendszerbe vagy káros kódot futtatni</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3>4. Adatvédelem</h3>
+                        <p>A Szolgáltatás bizonyos adatokat (például ellenőrzött szerverek listáját) helyileg tárol az Ön eszközén a böngésző localStorage funkciójának használatával. További információkért tekintse meg <a href="privacy.html">Adatvédelmi nyilatkozatunkat</a>.</p>
+                    </section>
+
+                    <section>
+                        <h3>5. Felelősségi kizárás</h3>
+                        <p>A Szolgáltatás "ahogy van" alapján kerül nyújtásra. A Szolgáltató nem vállal felelősséget a Szolgáltatás használatából eredő közvetlen vagy közvetett károkért. A Minecraft szerverek állapotával kapcsolatos információk külső API-kból származnak, ezek pontosságáért a Szolgáltató nem vállal felelősséget.</p>
+                    </section>
+
+                    <section>
+                        <h3>6. Kapcsolat</h3>
+                        <p>Kérdéseivel, észrevételeivel forduljon hozzánk a <a href="contact.html">Kapcsolat</a> oldalon található elérhetőségeken.</p>
+                    </section>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="terms.html">Felhasználási feltételek</a>
+                    <a href="privacy.html">Adatvédelem</a>
+                    <a href="contact.html">Kapcsolat</a>
+                </div>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+                <p class="copyright">&copy; 2025 Mcstatus.hu - Minden jog fenntartva</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

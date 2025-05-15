@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mcstatus.hu | Minecraft Szerver Státusz</title>
+    <meta name="description" content="Valós idejű Minecraft szerver információk és státusz ellenőrzés">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --primary: #00e676;
+            --primary-dark: #00a152;
+            --primary-light: #5efc82;
+            --secondary: #6200ea;
+            --background: #121212;
+            --surface: #1e1e1e;
+            --surface-dark: #121212;
+            --surface-light: #2d2d2d;
+            --error: #cf6679;
+            --on-primary: #000000;
+            --on-secondary: #ffffff;
+            --on-background: #ffffff;
+            --on-surface: #ffffff;
+            --on-error: #000000;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--on-background);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .app-header {
+            background-color: var(--surface-dark);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            gap: 10rem;
+            justify-content: space-between;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            color: var(--primary);
+            font-size: 1.75rem;
+        }
+
+        .logo-container h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--on-surface);
+        }
+
+        .logo-container h1 span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--on-surface);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .nav-link.active {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .discord-btn {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .discord-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .server-input-container {
+            background-color: var(--surface);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-icon {
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--surface-light);
+            border-radius: 0.5rem;
+            background-color: var(--surface-dark);
+            color: var(--on-surface);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 230, 118, 0.2);
+        }
+
+        .primary-btn {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .primary-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .quick-links {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--on-surface);
+            opacity: 0.8;
+        }
+
+        .quick-links a {
+            color: var(--primary-light);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .quick-links a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .status-container {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .server-card {
+            flex: 3;
+            background-color: var(--surface);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .server-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--surface-light);
+        }
+
+        .server-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #666;
+        }
+
+        .status-dot.online {
+            background-color: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .status-dot.offline {
+            background-color: var(--error);
+            box-shadow: 0 0 10px var(--error);
+        }
+
+        .status-dot.pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .server-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--on-surface);
+        }
+
+        .server-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background-color: var(--surface-dark);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            transition: var(--transition);
+            border-left: 3px solid var(--primary);
+        }
+
+        .stat-card.wide {
+            grid-column: span 2;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 230, 118, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--on-surface);
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-info p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--on-surface);
+            margin-bottom: 0.5rem;
+        }
+
+        .player-list {
+            max-height: 150px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .player-list::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .player-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .player-list::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        .player-list div {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--surface-light);
+            font-size: 0.9rem;
+        }
+
+        .copy-btn, .fav-btn, .share-btn {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .copy-btn:hover, .fav-btn:hover, .share-btn:hover {
+            background-color: var(--primary);
+            color: var(--on-primary);
+        }
+
+        .server-history {
+            flex: 1;
+            background-color: var(--surface);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            max-height: 500px;
+        }
+
+        .server-history h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--on-surface);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .history-item {
+            background-color: var(--surface-dark);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .history-item:hover {
+            background-color: var(--surface-light);
+        }
+
+        .history-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--on-surface);
+        }
+
+        .history-status {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+        }
+
+        .history-status.online {
+            background-color: rgba(0, 230, 118, 0.1);
+            color: var(--primary);
+        }
+
+        .history-status.offline {
+            background-color: rgba(207, 102, 121, 0.1);
+            color: var(--error);
+        }
+
+        .view-all-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .view-all-link:hover {
+            text-decoration: underline;
+        }
+
+        .app-footer {
+            background-color: var(--surface-dark);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .footer-links a {
+            color: var(--on-surface);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .social-links a {
+            color: var(--on-surface);
+            font-size: 1.25rem;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .social-links a:hover {
+            opacity: 1;
+            color: var(--primary);
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 1024px) {
+            .status-container {
+                flex-direction: column;
+            }
+            
+            .server-history {
+                max-height: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .input-group input {
+                width: 100%;
+            }
+            
+            .primary-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .quick-links {
+                flex-wrap: wrap;
+            }
+            
+            .stat-card.wide {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-header {
+                padding: 1rem;
+            }
+            
+            .server-input-container {
+                padding: 1rem;
+            }
+            
+            .server-card, .server-history {
+                padding: 1rem;
+            }
+            
+            .footer-links, .social-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-container">
+                <a href="index.html" class="logo-container">
+                    <i class="fas fa-server logo-icon"></i>
+                    <h1>Mcstatus<span>.hu</span></h1>
+                </a>
+                <nav class="nav-links">
+                    <a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Főoldal</a>
+                    <a href="history.html" class="nav-link"><i class="fas fa-history"></i> Előzmények</a>
+                    <a href="favorites.html" class="nav-link"><i class="fas fa-star"></i> Kedvencek</a>
+                </nav>
+                <a href="https://discord.com/invite/tjcQnnJt8H" target="_blank" class="discord-btn">
+                    <i class="fab fa-discord"></i> Közösség
+                </a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="server-input-container">
+                <div class="input-group">
+                    <i class="fas fa-search input-icon"></i>
+                    <input type="text" id="server-input" placeholder="Szerver cím (pl. mc.hypixel.net)" value="mc.hypixel.net">
+                    <button id="check-button" class="primary-btn">
+                        <i class="fas fa-sync-alt"></i> Ellenőrzés
+                    </button>
+                </div>
+                <div class="quick-links">
+                    <span>Gyors linkek:</span>
+                    <a href="#" data-ip="play.turulcraft.hu">Turulcraft</a>
+                </div>
+            </div>
+
+            <div class="status-container">
+                <div class="server-card">
+                    <div class="server-header">
+                        <div class="server-status-indicator">
+                            <div class="status-dot pulse"></div>
+                            <span id="status-text">Ellenőrzés...</span>
+                        </div>
+                        <h2 id="server-name" class="server-name">-</h2>
+                    </div>
+
+                    <div class="server-stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Játékosok</h3>
+                                <p id="player-count">-/-</p>
+                                <div id="player-list" class="player-list"></div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-code-branch"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Verzió</h3>
+                                <p id="version">-</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>IP Cím</h3>
+                                <p id="ip-address">-</p>
+                                <button class="copy-btn" data-target="ip-address">
+                                    <i class="far fa-copy"></i> Másolás
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Ping</h3>
+                                <p id="ping">-</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card wide">
+                            <div class="stat-icon">
+                                <i class="fas fa-comment-alt"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Üzenet (MOTD)</h3>
+                                <p id="motd">-</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="far fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Műveletek</h3>
+                                <button class="fav-btn">
+                                    <i class="far fa-star"></i> Kedvenc
+                                </button>
+                                <button class="share-btn">
+                                    <i class="fas fa-share-alt"></i> Megosztás
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="server-history">
+                    <h3><i class="fas fa-history"></i> Legutóbbi szerverek</h3>
+                    <div id="history-list" class="history-list">
+                        <div class="history-item">
+                            <span class="history-name">mc.hypixel.net</span>
+                            <span class="history-status online">Online</span>
+                        </div>
+                        <div class="history-item">
+                            <span class="history-name">play.cubecraft.net</span>
+                            <span class="history-status online">Online</span>
+                        </div>
+                    </div>
+                    <a href="history.html" class="view-all-link">Összes megtekintése</a>
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="terms.html">Felhasználási feltételek</a>
+                    <a href="privacy.html">Adatvédelem</a>
+                    <a href="contact.html">Kapcsolat</a>
+                </div>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-discord"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+                <p class="copyright">&copy; 2025 Mcstatus.hu - Minden jog fenntartva</p>
+            </div>
+        </footer>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // DOM Elements
+        const statusDot = document.querySelector('.status-dot');
+        const statusText = document.getElementById('status-text');
+        const serverName = document.getElementById('server-name');
+        const playerCount = document.getElementById('player-count');
+        const playerList = document.getElementById('player-list');
+        const version = document.getElementById('version');
+        const ping = document.getElementById('ping');
+        const motd = document.getElementById('motd');
+        const serverInput = document.getElementById('server-input');
+        const checkButton = document.getElementById('check-button');
+        const ipAddress = document.getElementById('ip-address');
+        const copyButtons = document.querySelectorAll('.copy-btn');
+        const favButton = document.querySelector('.fav-btn');
+        const shareButton = document.querySelector('.share-btn');
+        const quickLinks = document.querySelectorAll('.quick-links a');
+        const historyList = document.getElementById('history-list');
+
+        // Server history array
+        let serverHistory = JSON.parse(localStorage.getItem('serverHistory')) || [];
+        let favoriteServers = JSON.parse(localStorage.getItem('favoriteServers')) || [];
+        
+        // Initialize the app
+        function init() {
+            renderHistory();
+            loadServerFromUrl();
+            setupEventListeners();
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            checkButton.addEventListener('click', checkServer);
+            serverInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') checkServer();
+            });
+            
+            copyButtons.forEach(btn => {
+                btn.addEventListener('click', copyToClipboard);
+            });
+            
+            favButton.addEventListener('click', toggleFavorite);
+            shareButton.addEventListener('click', shareServer);
+            
+            quickLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const ip = link.getAttribute('data-ip');
+                    serverInput.value = ip;
+                    checkServer();
+                });
+            });
+        }
+        
+        // Load server from URL
+        function loadServerFromUrl() {
+            const path = window.location.pathname;
+            
+            // Ha csak a domain van (pl. mcstatus.hu), ne csináljunk semmit
+            if (path === '/' || path === '/index.html') {
+                serverInput.value = ''; // Üresen hagyjuk a mezőt
+                resetStatusUI(); // Alapállapotba állítjuk az UI-t
+                
+                // URL tisztítása ha benne van az index.html
+                if (path === '/index.html') {
+                    window.history.replaceState({}, '', '/');
+                }
+                return;
+            }
+            
+            // Ha van szerver az URL-ben (pl. mcstatus.hu/mc.hypixel.net)
+            const serverFromUrl = decodeURIComponent(path.substring(1)); // Eltávolítjuk a kezdő '/' karaktert
+            if (serverFromUrl) {
+                serverInput.value = serverFromUrl;
+                checkServer();
+            }
+        }
+        
+        // Render server history
+        function renderHistory() {
+            historyList.innerHTML = '';
+            
+            serverHistory.slice(0, 5).forEach(server => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                historyItem.innerHTML = `
+                    <span class="history-name">${server.ip}</span>
+                    <span class="history-status ${server.online ? 'online' : 'offline'}">
+                        ${server.online ? 'Online' : 'Offline'}
+                    </span>
+                `;
+                
+                historyItem.addEventListener('click', () => {
+                    serverInput.value = server.ip;
+                    checkServer();
+                });
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // Check server status
+        async function checkServer() {
+            const address = serverInput.value.trim();
+            
+            // Ha üres a mező, ne csináljunk semmit
+            if (!address) {
+                resetStatusUI();
+                
+                // URL tisztítása ha üres a mező
+                if (window.location.pathname !== '/') {
+                    window.history.pushState({}, '', '/');
+                }
+                return;
+            }
+            
+            // Reset UI
+            resetStatusUI();
+            
+            try {
+                const startTime = performance.now();
+                const response = await fetch(`https://api.mcsrvstat.us/2/${address}`);
+                const pingTime = Math.round(performance.now() - startTime);
+                const data = await response.json();
+                
+                // Update server history
+                updateServerHistory(address, data.online);
+                
+                // Update URL (csak ha nem ugyanaz mint az aktuális)
+                const newPath = `/${encodeURIComponent(address)}`;
+                if (window.location.pathname !== newPath) {
+                    window.history.pushState({}, '', newPath);
+                }
+                
+                if (data.online) {
+                    showOnlineStatus(data, pingTime);
+                } else {
+                    showOfflineStatus();
+                }
+            } catch (error) {
+                console.error('Error fetching server status:', error);
+                showErrorStatus();
+            }
+        }
+        
+        // Reset status UI
+        function resetStatusUI() {
+            statusDot.className = 'status-dot pulse';
+            statusText.textContent = 'Ellenőrzés...';
+            statusText.style.color = '';
+            serverName.textContent = '-';
+            playerCount.textContent = '-/-';
+            playerList.innerHTML = '';
+            version.textContent = '-';
+            ping.textContent = '-';
+            motd.textContent = '-';
+            ipAddress.textContent = '-';
+        }
+        
+        // Show online status
+        function showOnlineStatus(data, pingTime) {
+            statusDot.className = 'status-dot online';
+            statusText.textContent = 'Online';
+            statusText.style.color = 'var(--primary)';
+            
+            serverName.textContent = data.hostname || serverInput.value;
+            playerCount.textContent = `${data.players?.online || 0}/${data.players?.max || 0}`;
+            version.textContent = data.version || 'Ismeretlen';
+            ping.textContent = `${pingTime}ms`;
+            motd.textContent = data.motd?.clean?.join('\n') || 'Nincs üzenet';
+            ipAddress.textContent = `${data.ip || serverInput.value}:${data.port || '25565'}`;
+            
+            // Player list
+            if (data.players?.list) {
+                playerList.innerHTML = '';
+                data.players.list.forEach(player => {
+                    const playerElement = document.createElement('div');
+                    playerElement.textContent = player;
+                    playerList.appendChild(playerElement);
+                });
+            }
+            
+            // Update favorite button state
+            updateFavoriteButton();
+        }
+        
+        // Update favorite button state
+        function updateFavoriteButton() {
+            const ip = serverInput.value.trim();
+            const isFavorite = favoriteServers.some(server => server.ip === ip);
+            
+            if (isFavorite) {
+                favButton.innerHTML = '<i class="fas fa-star"></i> Kedvenc';
+                favButton.classList.add('active');
+            } else {
+                favButton.innerHTML = '<i class="far fa-star"></i> Kedvenc';
+                favButton.classList.remove('active');
+            }
+        }
+        
+        // Show offline status
+        function showOfflineStatus() {
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = 'Offline';
+            statusText.style.color = 'var(--error)';
+            serverName.textContent = serverInput.value;
+            updateFavoriteButton();
+        }
+        
+        // Show error status
+        function showErrorStatus() {
+            statusDot.className = 'status-dot offline';
+            statusText.textContent = 'Hiba';
+            statusText.style.color = 'var(--error)';
+            updateFavoriteButton();
+        }
+        
+        // Update server history
+        function updateServerHistory(ip, isOnline) {
+            // Remove if already exists
+            serverHistory = serverHistory.filter(server => server.ip !== ip);
+            
+            // Add to beginning
+            serverHistory.unshift({ ip, online: isOnline });
+            
+            // Keep only last 10 items
+            serverHistory = serverHistory.slice(0, 10);
+            
+            // Save to localStorage
+            localStorage.setItem('serverHistory', JSON.stringify(serverHistory));
+            
+            // Update UI
+            renderHistory();
+        }
+        
+        // Copy to clipboard
+        function copyToClipboard(e) {
+            const targetId = e.currentTarget.getAttribute('data-target');
+            const text = document.getElementById(targetId).textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = e.currentTarget.innerHTML;
+                e.currentTarget.innerHTML = '<i class="fas fa-check"></i> Másolva!';
+                
+                setTimeout(() => {
+                    e.currentTarget.innerHTML = originalText;
+                }, 2000);
+            });
+        }
+        
+        // Toggle favorite
+        function toggleFavorite() {
+            const ip = serverInput.value.trim();
+            if (!ip) return;
+            
+            // Check if already favorited
+            const index = favoriteServers.findIndex(server => server.ip === ip);
+            
+            if (index === -1) {
+                // Add to favorites
+                favoriteServers.push({ 
+                    ip, 
+                    online: statusDot.classList.contains('online') 
+                });
+            } else {
+                // Remove from favorites
+                favoriteServers.splice(index, 1);
+            }
+            
+            localStorage.setItem('favoriteServers', JSON.stringify(favoriteServers));
+            updateFavoriteButton();
+        }
+        
+        // Share server
+        function shareServer() {
+            if (navigator.share) {
+                navigator.share({
+                    title: `Minecraft szerver státusz: ${serverName.textContent}`,
+                    text: `Nézd meg a ${serverName.textContent} Minecraft szerver státuszát!`,
+                    url: window.location.href
+                }).catch(err => {
+                    console.log('Error sharing:', err);
+                });
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const shareUrl = window.location.href;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    const originalText = shareButton.innerHTML;
+                    shareButton.innerHTML = '<i class="fas fa-check"></i> Link másolva!';
+                    
+                    setTimeout(() => {
+                        shareButton.innerHTML = originalText;
+                    }, 2000);
+                });
+            }
+        }
+        
+        // Initialize the app
+        init();
+    });
+</script>
+</body>
+</html>
