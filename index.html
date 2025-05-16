@@ -41,6 +41,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden; /* Megakadályozza a vízszintes görgetést */
         }
 
         .app-container {
@@ -54,23 +55,20 @@
 
         .app-header {
             background-color: var(--surface-dark);
-            padding: 1rem 2rem;
+            padding: 1rem;
             box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-
+            width: 100%;
         }
 
         .header-container {
             display: flex;
             align-items: center;
-            gap: 10rem;
             justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
             max-width: 1400px;
             margin: 0 auto;
+            width: 100%;
         }
 
         .logo-container {
@@ -97,7 +95,8 @@
 
         .nav-links {
             display: flex;
-            gap: 1.5rem;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
         .nav-link {
@@ -141,7 +140,7 @@
 
         .main-content {
             flex: 1;
-            padding: 2rem;
+            padding: 1rem;
             max-width: 1400px;
             margin: 0 auto;
             width: 100%;
@@ -153,11 +152,12 @@
             padding: 1.5rem;
             margin-bottom: 2rem;
             box-shadow: var(--shadow);
+            width: 100%;
         }
 
         .input-group {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             gap: 1rem;
             margin-bottom: 1rem;
         }
@@ -165,10 +165,13 @@
         .input-icon {
             color: var(--primary);
             font-size: 1.25rem;
+            display: flex;
+            align-items: center;
         }
 
         .input-group input {
             flex: 1;
+            min-width: 0;
             padding: 0.75rem 1rem;
             border: 2px solid var(--surface-light);
             border-radius: 0.5rem;
@@ -206,6 +209,7 @@
         .quick-links {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 1rem;
             font-size: 0.9rem;
             color: var(--on-surface);
@@ -225,6 +229,7 @@
 
         .status-container {
             display: flex;
+            flex-direction: column;
             gap: 2rem;
         }
 
@@ -234,12 +239,15 @@
             border-radius: 0.75rem;
             padding: 1.5rem;
             box-shadow: var(--shadow);
+            width: 100%;
         }
 
         .server-header {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
+            gap: 1rem;
             margin-bottom: 1.5rem;
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--surface-light);
@@ -282,12 +290,14 @@
             font-size: 1.25rem;
             font-weight: 600;
             color: var(--on-surface);
+            word-break: break-word;
         }
 
         .server-stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 1.5rem;
+            width: 100%;
         }
 
         .stat-card {
@@ -296,6 +306,9 @@
             padding: 1rem;
             transition: var(--transition);
             border-left: 3px solid var(--primary);
+            word-break: break-word;
+            overflow-wrap: break-word;
+            width: 100%;
         }
 
         .stat-card.wide {
@@ -333,6 +346,8 @@
             font-weight: 600;
             color: var(--on-surface);
             margin-bottom: 0.5rem;
+            overflow-wrap: break-word;
+            word-break: break-word;
         }
 
         .player-list {
@@ -359,6 +374,7 @@
             padding: 0.25rem 0;
             border-bottom: 1px solid var(--surface-light);
             font-size: 0.9rem;
+            word-break: break-word;
         }
 
         .copy-btn, .fav-btn, .share-btn {
@@ -375,6 +391,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
+            white-space: nowrap;
         }
 
         .copy-btn:hover, .fav-btn:hover, .share-btn:hover {
@@ -389,6 +406,7 @@
             padding: 1.5rem;
             box-shadow: var(--shadow);
             max-height: 500px;
+            width: 100%;
         }
 
         .server-history h3 {
@@ -405,6 +423,7 @@
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
+            width: 100%;
         }
 
         .history-item {
@@ -414,8 +433,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
             transition: var(--transition);
             cursor: pointer;
+            width: 100%;
         }
 
         .history-item:hover {
@@ -426,6 +448,7 @@
             font-size: 0.9rem;
             font-weight: 500;
             color: var(--on-surface);
+            word-break: break-word;
         }
 
         .history-status {
@@ -433,6 +456,7 @@
             font-weight: 600;
             padding: 0.25rem 0.5rem;
             border-radius: 0.25rem;
+            white-space: nowrap;
         }
 
         .history-status.online {
@@ -460,8 +484,9 @@
 
         .app-footer {
             background-color: var(--surface-dark);
-            padding: 2rem;
+            padding: 2rem 1rem;
             margin-top: 2rem;
+            width: 100%;
         }
 
         .footer-content {
@@ -471,11 +496,14 @@
             flex-direction: column;
             align-items: center;
             gap: 1.5rem;
+            width: 100%;
         }
 
         .footer-links {
             display: flex;
             gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .footer-links a {
@@ -493,6 +521,8 @@
         .social-links {
             display: flex;
             gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .social-links a {
@@ -510,6 +540,13 @@
         .copyright {
             font-size: 0.9rem;
             opacity: 0.6;
+            text-align: center;
+        }
+
+        @media (min-width: 1024px) {
+            .status-container {
+                flex-direction: row;
+            }
         }
 
         @media (max-width: 1024px) {
@@ -520,16 +557,27 @@
             .server-history {
                 max-height: none;
             }
+
+            .stat-card.wide {
+                grid-column: span 1;
+            }
         }
 
         @media (max-width: 768px) {
             .header-container {
                 flex-direction: column;
                 gap: 1rem;
+                align-items: flex-start;
             }
             
             .nav-links {
-                gap: 1rem;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .discord-btn {
+                width: 100%;
+                justify-content: center;
             }
             
             .main-content {
@@ -538,6 +586,11 @@
             
             .input-group {
                 flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .input-icon {
+                display: none;
             }
             
             .input-group input {
@@ -551,6 +604,11 @@
             
             .quick-links {
                 flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+
+            .server-stats-grid {
+                grid-template-columns: 1fr;
             }
             
             .stat-card.wide {
@@ -574,6 +632,12 @@
             .footer-links, .social-links {
                 flex-wrap: wrap;
                 justify-content: center;
+                gap: 1rem;
+            }
+
+            .history-item {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
     </style>
