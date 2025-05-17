@@ -794,304 +794,313 @@
     </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // DOM Elements
-        const statusDot = document.querySelector('.status-dot');
-        const statusText = document.getElementById('status-text');
-        const serverName = document.getElementById('server-name');
-        const playerCount = document.getElementById('player-count');
-        const playerList = document.getElementById('player-list');
-        const version = document.getElementById('version');
-        const ping = document.getElementById('ping');
-        const motd = document.getElementById('motd');
-        const serverInput = document.getElementById('server-input');
-        const checkButton = document.getElementById('check-button');
-        const ipAddress = document.getElementById('ip-address');
-        const copyButtons = document.querySelectorAll('.copy-btn');
-        const favButton = document.querySelector('.fav-btn');
-        const shareButton = document.querySelector('.share-btn');
-        const quickLinks = document.querySelectorAll('.quick-links a');
-        const historyList = document.getElementById('history-list');
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const statusDot = document.querySelector('.status-dot');
+            const statusText = document.getElementById('status-text');
+            const serverName = document.getElementById('server-name');
+            const playerCount = document.getElementById('player-count');
+            const playerList = document.getElementById('player-list');
+            const version = document.getElementById('version');
+            const ping = document.getElementById('ping');
+            const motd = document.getElementById('motd');
+            const serverInput = document.getElementById('server-input');
+            const checkButton = document.getElementById('check-button');
+            const ipAddress = document.getElementById('ip-address');
+            const copyButtons = document.querySelectorAll('.copy-btn');
+            const favButton = document.querySelector('.fav-btn');
+            const shareButton = document.querySelector('.share-btn');
+            const quickLinks = document.querySelectorAll('.quick-links a');
+            const historyList = document.getElementById('history-list');
 
-        // Server history array
-        let serverHistory = JSON.parse(localStorage.getItem('serverHistory')) || [];
-        let favoriteServers = JSON.parse(localStorage.getItem('favoriteServers')) || [];
-        
-        // Initialize the app
-        function init() {
-            renderHistory();
-            handleInitialUrl();
-            setupEventListeners();
-        }
+            // Server history array
+            let serverHistory = JSON.parse(localStorage.getItem('serverHistory')) || [];
+            let favoriteServers = JSON.parse(localStorage.getItem('favoriteServers')) || [];
+            
+            // Initialize the app
+            function init() {
+                renderHistory();
+                handleInitialUrl();
+                setupEventListeners();
+            }
 
-        // Handle initial URL when page loads
-        function handleInitialUrl() {
-            const path = window.location.pathname;
-            
-            // If just domain (mcstatus.hu)
-            if (path === '/' || path === '/index.html') {
-                // Clean URL if it contains index.html
-                if (path === '/index.html') {
-                    window.history.replaceState({}, '', '/');
+            // Handle initial URL when page loads
+            function handleInitialUrl() {
+                const path = window.location.pathname;
+                const urlParams = new URLSearchParams(window.location.search);
+                const serverFromParam = urlParams.get('server');
+                
+                // If there's a server parameter in the URL
+                if (serverFromParam) {
+                    serverInput.value = decodeURIComponent(serverFromParam);
+                    checkServer(true); // Immediate check with initialLoad flag
+                    return;
                 }
-                return;
-            }
-            
-            // Extract server from URL (e.g. /play.turulcraft.hu)
-            const serverFromUrl = decodeURIComponent(path.substring(1));
-            
-            if (serverFromUrl) {
-                serverInput.value = serverFromUrl;
-                checkServer(true); // Immediate check with initialLoad flag
-            }
-        }
-        
-        // Set up event listeners
-        function setupEventListeners() {
-            checkButton.addEventListener('click', () => checkServer());
-            serverInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') checkServer();
-            });
-            
-            copyButtons.forEach(btn => {
-                btn.addEventListener('click', copyToClipboard);
-            });
-            
-            favButton.addEventListener('click', toggleFavorite);
-            shareButton.addEventListener('click', shareServer);
-            
-            quickLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const ip = link.getAttribute('data-ip');
-                    serverInput.value = ip;
-                    checkServer();
-                });
-            });
-        }
-        
-        function renderHistory() {
-            historyList.innerHTML = '';
-            
-            serverHistory.slice(0, 5).forEach(server => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
                 
-                historyItem.innerHTML = `
-                    <span class="history-name">${server.ip}</span>
-                    <span class="history-status ${server.online ? 'online' : 'offline'}">
-                        ${server.online ? 'Online' : 'Offline'}
-                    </span>
-                `;
-                
-                historyItem.addEventListener('click', () => {
-                    serverInput.value = server.ip;
-                    checkServer();
-                });
-                
-                historyList.appendChild(historyItem);
-            });
-        }
-        
-        // Check server status (modified)
-        async function checkServer(initialLoad = false) {
-            const address = serverInput.value.trim();
-            
-            // If empty input
-            if (!address) {
-                resetStatusUI();
-                if (!initialLoad && window.location.pathname !== '/') {
-                    window.history.pushState({}, '', '/');
-                }
-                return;
-            }
-            
-            // Reset UI
-            resetStatusUI();
-            
-            try {
-                const startTime = performance.now();
-                const response = await fetch(`https://api.mcsrvstat.us/2/${encodeURIComponent(address)}`);
-                const pingTime = Math.round(performance.now() - startTime);
-                const data = await response.json();
-                
-                // Update server history
-                updateServerHistory(address, data.online);
-                
-                // Update URL (only if not initial load)
-                if (!initialLoad) {
-                    const newPath = `/${encodeURIComponent(address)}`;
-                    if (window.location.pathname !== newPath) {
-                        window.history.pushState({}, '', newPath);
+                // If just domain (mcstatus.hu)
+                if (path === '/' || path === '/index.html') {
+                    // Clean URL if it contains index.html
+                    if (path === '/index.html') {
+                        window.history.replaceState({}, '', '/');
                     }
+                    return;
                 }
                 
-                if (data.online) {
-                    showOnlineStatus(data, pingTime);
-                } else {
-                    showOfflineStatus();
+                // Extract server from URL (e.g. /play.turulcraft.hu)
+                const serverFromUrl = decodeURIComponent(path.substring(1));
+                
+                if (serverFromUrl) {
+                    serverInput.value = serverFromUrl;
+                    checkServer(true); // Immediate check with initialLoad flag
                 }
-            } catch (error) {
-                console.error('Error fetching server status:', error);
-                showErrorStatus();
             }
-        }
-        
-        // Reset status UI
-        function resetStatusUI() {
-            statusDot.className = 'status-dot pulse';
-            statusText.textContent = 'Ellenőrzés...';
-            statusText.style.color = '';
-            serverName.textContent = '-';
-            playerCount.textContent = '-/-';
-            playerList.innerHTML = '';
-            version.textContent = '-';
-            ping.textContent = '-';
-            motd.textContent = '-';
-            ipAddress.textContent = '-';
-        }
-        
-        // Show online status
-        function showOnlineStatus(data, pingTime) {
-            statusDot.className = 'status-dot online';
-            statusText.textContent = 'Online';
-            statusText.style.color = 'var(--primary)';
             
-            serverName.textContent = data.hostname || serverInput.value;
-            playerCount.textContent = `${data.players?.online || 0}/${data.players?.max || 0}`;
-            version.textContent = data.version || 'Ismeretlen';
-            ping.textContent = `${pingTime}ms`;
-            motd.textContent = data.motd?.clean?.join('\n') || 'Nincs üzenet';
-            ipAddress.textContent = `${data.ip || serverInput.value}:${data.port || '25565'}`;
-            
-            // Player list
-            if (data.players?.list) {
-                playerList.innerHTML = '';
-                data.players.list.forEach(player => {
-                    const playerElement = document.createElement('div');
-                    playerElement.textContent = player;
-                    playerList.appendChild(playerElement);
+            // Set up event listeners
+            function setupEventListeners() {
+                checkButton.addEventListener('click', () => checkServer());
+                serverInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') checkServer();
                 });
+                
+                copyButtons.forEach(btn => {
+                    btn.addEventListener('click', copyToClipboard);
+                });
+                
+                favButton.addEventListener('click', toggleFavorite);
+                shareButton.addEventListener('click', shareServer);
+                
+                quickLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const ip = link.getAttribute('data-ip');
+                        serverInput.value = ip;
+                        checkServer();
+                    });
+                });
+            }
+            
+            function renderHistory() {
+                historyList.innerHTML = '';
+                
+                serverHistory.slice(0, 5).forEach(server => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    
+                    historyItem.innerHTML = `
+                        <span class="history-name">${server.ip}</span>
+                        <span class="history-status ${server.online ? 'online' : 'offline'}">
+                            ${server.online ? 'Online' : 'Offline'}
+                        </span>
+                    `;
+                    
+                    historyItem.addEventListener('click', () => {
+                        serverInput.value = server.ip;
+                        checkServer();
+                    });
+                    
+                    historyList.appendChild(historyItem);
+                });
+            }
+            
+            // Check server status (modified)
+            async function checkServer(initialLoad = false) {
+                const address = serverInput.value.trim();
+                
+                // If empty input
+                if (!address) {
+                    resetStatusUI();
+                    if (!initialLoad && window.location.pathname !== '/') {
+                        window.history.pushState({}, '', '/');
+                    }
+                    return;
+                }
+                
+                // Reset UI
+                resetStatusUI();
+                
+                try {
+                    const startTime = performance.now();
+                    const response = await fetch(`https://api.mcsrvstat.us/2/${encodeURIComponent(address)}`);
+                    const pingTime = Math.round(performance.now() - startTime);
+                    const data = await response.json();
+                    
+                    // Update server history
+                    updateServerHistory(address, data.online);
+                    
+                    // Update URL (only if not initial load)
+                    if (!initialLoad) {
+                        const newPath = `/${encodeURIComponent(address)}`;
+                        if (window.location.pathname !== newPath) {
+                            window.history.pushState({}, '', newPath);
+                        }
+                    }
+                    
+                    if (data.online) {
+                        showOnlineStatus(data, pingTime);
+                    } else {
+                        showOfflineStatus();
+                    }
+                } catch (error) {
+                    console.error('Error fetching server status:', error);
+                    showErrorStatus();
+                }
+            }
+            
+            // Reset status UI
+            function resetStatusUI() {
+                statusDot.className = 'status-dot pulse';
+                statusText.textContent = 'Ellenőrzés...';
+                statusText.style.color = '';
+                serverName.textContent = '-';
+                playerCount.textContent = '-/-';
+                playerList.innerHTML = '';
+                version.textContent = '-';
+                ping.textContent = '-';
+                motd.textContent = '-';
+                ipAddress.textContent = '-';
+            }
+            
+            // Show online status
+            function showOnlineStatus(data, pingTime) {
+                statusDot.className = 'status-dot online';
+                statusText.textContent = 'Online';
+                statusText.style.color = 'var(--primary)';
+                
+                serverName.textContent = data.hostname || serverInput.value;
+                playerCount.textContent = `${data.players?.online || 0}/${data.players?.max || 0}`;
+                version.textContent = data.version || 'Ismeretlen';
+                ping.textContent = `${pingTime}ms`;
+                motd.textContent = data.motd?.clean?.join('\n') || 'Nincs üzenet';
+                ipAddress.textContent = `${data.ip || serverInput.value}:${data.port || '25565'}`;
+                
+                // Player list
+                if (data.players?.list) {
+                    playerList.innerHTML = '';
+                    data.players.list.forEach(player => {
+                        const playerElement = document.createElement('div');
+                        playerElement.textContent = player;
+                        playerList.appendChild(playerElement);
+                    });
+                }
+                
+                // Update favorite button state
+                updateFavoriteButton();
             }
             
             // Update favorite button state
-            updateFavoriteButton();
-        }
-        
-        // Update favorite button state
-        function updateFavoriteButton() {
-            const ip = serverInput.value.trim();
-            const isFavorite = favoriteServers.some(server => server.ip === ip);
-            
-            if (isFavorite) {
-                favButton.innerHTML = '<i class="fas fa-star"></i> Kedvenc';
-                favButton.classList.add('active');
-            } else {
-                favButton.innerHTML = '<i class="far fa-star"></i> Kedvenc';
-                favButton.classList.remove('active');
-            }
-        }
-        
-        // Show offline status
-        function showOfflineStatus() {
-            statusDot.className = 'status-dot offline';
-            statusText.textContent = 'Offline';
-            statusText.style.color = 'var(--error)';
-            serverName.textContent = serverInput.value;
-            updateFavoriteButton();
-        }
-        
-        // Show error status
-        function showErrorStatus() {
-            statusDot.className = 'status-dot offline';
-            statusText.textContent = 'Hiba';
-            statusText.style.color = 'var(--error)';
-            updateFavoriteButton();
-        }
-        
-        // Update server history
-        function updateServerHistory(ip, isOnline) {
-            // Remove if already exists
-            serverHistory = serverHistory.filter(server => server.ip !== ip);
-            
-            // Add to beginning
-            serverHistory.unshift({ ip, online: isOnline });
-            
-            // Keep only last 10 items
-            serverHistory = serverHistory.slice(0, 10);
-            
-            // Save to localStorage
-            localStorage.setItem('serverHistory', JSON.stringify(serverHistory));
-            
-            // Update UI
-            renderHistory();
-        }
-        
-        // Copy to clipboard
-        function copyToClipboard(e) {
-            const targetId = e.currentTarget.getAttribute('data-target');
-            const text = document.getElementById(targetId).textContent;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = e.currentTarget.innerHTML;
-                e.currentTarget.innerHTML = '<i class="fas fa-check"></i> Másolva!';
+            function updateFavoriteButton() {
+                const ip = serverInput.value.trim();
+                const isFavorite = favoriteServers.some(server => server.ip === ip);
                 
-                setTimeout(() => {
-                    e.currentTarget.innerHTML = originalText;
-                }, 2000);
-            });
-        }
-        
-        // Toggle favorite
-        function toggleFavorite() {
-            const ip = serverInput.value.trim();
-            if (!ip) return;
-            
-            // Check if already favorited
-            const index = favoriteServers.findIndex(server => server.ip === ip);
-            
-            if (index === -1) {
-                // Add to favorites
-                favoriteServers.push({ 
-                    ip, 
-                    online: statusDot.classList.contains('online') 
-                });
-            } else {
-                // Remove from favorites
-                favoriteServers.splice(index, 1);
+                if (isFavorite) {
+                    favButton.innerHTML = '<i class="fas fa-star"></i> Kedvenc';
+                    favButton.classList.add('active');
+                } else {
+                    favButton.innerHTML = '<i class="far fa-star"></i> Kedvenc';
+                    favButton.classList.remove('active');
+                }
             }
             
-            localStorage.setItem('favoriteServers', JSON.stringify(favoriteServers));
-            updateFavoriteButton();
-        }
-        
-        // Share server
-        function shareServer() {
-            if (navigator.share) {
-                navigator.share({
-                    title: `Minecraft szerver státusz: ${serverName.textContent}`,
-                    text: `Nézd meg a ${serverName.textContent} Minecraft szerver státuszát!`,
-                    url: window.location.href
-                }).catch(err => {
-                    console.log('Error sharing:', err);
-                });
-            } else {
-                // Fallback for browsers that don't support Web Share API
-                const shareUrl = window.location.href;
-                navigator.clipboard.writeText(shareUrl).then(() => {
-                    const originalText = shareButton.innerHTML;
-                    shareButton.innerHTML = '<i class="fas fa-check"></i> Link másolva!';
+            // Show offline status
+            function showOfflineStatus() {
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'Offline';
+                statusText.style.color = 'var(--error)';
+                serverName.textContent = serverInput.value;
+                updateFavoriteButton();
+            }
+            
+            // Show error status
+            function showErrorStatus() {
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = 'Hiba';
+                statusText.style.color = 'var(--error)';
+                updateFavoriteButton();
+            }
+            
+            // Update server history
+            function updateServerHistory(ip, isOnline) {
+                // Remove if already exists
+                serverHistory = serverHistory.filter(server => server.ip !== ip);
+                
+                // Add to beginning
+                serverHistory.unshift({ ip, online: isOnline });
+                
+                // Keep only last 10 items
+                serverHistory = serverHistory.slice(0, 10);
+                
+                // Save to localStorage
+                localStorage.setItem('serverHistory', JSON.stringify(serverHistory));
+                
+                // Update UI
+                renderHistory();
+            }
+            
+            // Copy to clipboard
+            function copyToClipboard(e) {
+                const targetId = e.currentTarget.getAttribute('data-target');
+                const text = document.getElementById(targetId).textContent;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalText = e.currentTarget.innerHTML;
+                    e.currentTarget.innerHTML = '<i class="fas fa-check"></i> Másolva!';
                     
                     setTimeout(() => {
-                        shareButton.innerHTML = originalText;
+                        e.currentTarget.innerHTML = originalText;
                     }, 2000);
                 });
             }
-        }
-        
-        // Initialize the app
-        init();
-    });
-</script>
+            
+            // Toggle favorite
+            function toggleFavorite() {
+                const ip = serverInput.value.trim();
+                if (!ip) return;
+                
+                // Check if already favorited
+                const index = favoriteServers.findIndex(server => server.ip === ip);
+                
+                if (index === -1) {
+                    // Add to favorites
+                    favoriteServers.push({ 
+                        ip, 
+                        online: statusDot.classList.contains('online') 
+                    });
+                } else {
+                    // Remove from favorites
+                    favoriteServers.splice(index, 1);
+                }
+                
+                localStorage.setItem('favoriteServers', JSON.stringify(favoriteServers));
+                updateFavoriteButton();
+            }
+            
+            // Share server
+            function shareServer() {
+                if (navigator.share) {
+                    navigator.share({
+                        title: `Minecraft szerver státusz: ${serverName.textContent}`,
+                        text: `Nézd meg a ${serverName.textContent} Minecraft szerver státuszát!`,
+                        url: window.location.href
+                    }).catch(err => {
+                        console.log('Error sharing:', err);
+                    });
+                } else {
+                    // Fallback for browsers that don't support Web Share API
+                    const shareUrl = window.location.href;
+                    navigator.clipboard.writeText(shareUrl).then(() => {
+                        const originalText = shareButton.innerHTML;
+                        shareButton.innerHTML = '<i class="fas fa-check"></i> Link másolva!';
+                        
+                        setTimeout(() => {
+                            shareButton.innerHTML = originalText;
+                        }, 2000);
+                    });
+                }
+            }
+            
+            // Initialize the app
+            init();
+        });
+    </script>
 </body>
 </html>
