@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mcstatus.hu | Minecraft Szerver Státusz</title>
     <meta name="description" content="Valós idejű Minecraft szerver információk és státusz ellenőrzés">
+    <meta name="keywords" content="minecraft, szerver, státusz, ping, játékoslista, mcstatus">
+    <meta name="author" content="Aronn">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
@@ -41,7 +43,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow-x: hidden; /* Megakadályozza a vízszintes görgetést */
+            overflow-x: hidden;
         }
 
         .app-container {
@@ -543,6 +545,21 @@
             text-align: center;
         }
 
+        #loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: var(--primary);
+        }
+
+        #server-icon {
+            display: none;
+            max-width: 64px;
+            max-height: 64px;
+            border-radius: 5px;
+            margin-right: 1rem;
+        }
+
         @media (min-width: 1024px) {
             .status-container {
                 flex-direction: row;
@@ -677,6 +694,10 @@
                 </div>
             </div>
 
+            <div id="loading-spinner" style="display:none;">
+                <i class="fas fa-spinner fa-spin"></i> Betöltés...
+            </div>
+
             <div class="status-container">
                 <div class="server-card">
                     <div class="server-header">
@@ -793,7 +814,7 @@
         </footer>
     </div>
 
-<script>
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             // DOM Elements
             const statusDot = document.querySelector('.status-dot');
@@ -812,6 +833,7 @@
             const shareButton = document.querySelector('.share-btn');
             const quickLinks = document.querySelectorAll('.quick-links a');
             const historyList = document.getElementById('history-list');
+            const loadingSpinner = document.getElementById('loading-spinner');
 
             // Server history array
             let serverHistory = JSON.parse(localStorage.getItem('serverHistory')) || [];
@@ -855,6 +877,18 @@
                 }
             }
             
+            // Validate server address
+            function validateServerAddress(address) {
+                return address.match(/^([a-z0-9]+\.)?[a-z0-9]+\.[a-z]{2,}(:\d{1,5})?$/i);
+            }
+            
+            // Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
             // Set up event listeners
             function setupEventListeners() {
                 checkButton.addEventListener('click', () => checkServer());
@@ -887,7 +921,7 @@
                     historyItem.className = 'history-item';
                     
                     historyItem.innerHTML = `
-                        <span class="history-name">${server.ip}</span>
+                        <span class="history-name">${escapeHtml(server.ip)}</span>
                         <span class="history-status ${server.online ? 'online' : 'offline'}">
                             ${server.online ? 'Online' : 'Offline'}
                         </span>
@@ -902,11 +936,11 @@
                 });
             }
             
-            // Check server status (modified)
+            // Check server status
             async function checkServer(initialLoad = false) {
                 const address = serverInput.value.trim();
                 
-                // If empty input
+                // Validate input
                 if (!address) {
                     resetStatusUI();
                     if (!initialLoad && window.location.pathname !== '/') {
@@ -915,8 +949,16 @@
                     return;
                 }
                 
+                if (!validateServerAddress(address)) {
+                    statusDot.className = 'status-dot offline';
+                    statusText.textContent = 'Érvénytelen szerver cím';
+                    statusText.style.color = 'var(--error)';
+                    return;
+                }
+                
                 // Reset UI
                 resetStatusUI();
+                loadingSpinner.style.display = 'block';
                 
                 try {
                     const startTime = performance.now();
@@ -941,8 +983,10 @@
                         showOfflineStatus();
                     }
                 } catch (error) {
-                    console.error('Error fetching server status:', error);
+                    console.error('Hiba a szerver státusz lekérdezésekor:', error);
                     showErrorStatus();
+                } finally {
+                    loadingSpinner.style.display = 'none';
                 }
             }
             
@@ -966,19 +1010,19 @@
                 statusText.textContent = 'Online';
                 statusText.style.color = 'var(--primary)';
                 
-                serverName.textContent = data.hostname || serverInput.value;
+                serverName.textContent = escapeHtml(data.hostname || serverInput.value);
                 playerCount.textContent = `${data.players?.online || 0}/${data.players?.max || 0}`;
-                version.textContent = data.version || 'Ismeretlen';
+                version.textContent = escapeHtml(data.version || 'Ismeretlen');
                 ping.textContent = `${pingTime}ms`;
-                motd.textContent = data.motd?.clean?.join('\n') || 'Nincs üzenet';
-                ipAddress.textContent = `${data.ip || serverInput.value}:${data.port || '25565'}`;
+                motd.textContent = escapeHtml(data.motd?.clean?.join('\n') || 'Nincs üzenet');
+                ipAddress.textContent = `${escapeHtml(data.ip || serverInput.value)}:${data.port || '25565'}`;
                 
                 // Player list
                 if (data.players?.list) {
                     playerList.innerHTML = '';
                     data.players.list.forEach(player => {
                         const playerElement = document.createElement('div');
-                        playerElement.textContent = player;
+                        playerElement.textContent = escapeHtml(player);
                         playerList.appendChild(playerElement);
                     });
                 }
@@ -1006,15 +1050,16 @@
                 statusDot.className = 'status-dot offline';
                 statusText.textContent = 'Offline';
                 statusText.style.color = 'var(--error)';
-                serverName.textContent = serverInput.value;
+                serverName.textContent = escapeHtml(serverInput.value);
                 updateFavoriteButton();
             }
             
             // Show error status
             function showErrorStatus() {
                 statusDot.className = 'status-dot offline';
-                statusText.textContent = 'Hiba';
+                statusText.textContent = 'Hiba a szerver elérésében';
                 statusText.style.color = 'var(--error)';
+                serverName.textContent = escapeHtml(serverInput.value);
                 updateFavoriteButton();
             }
             
@@ -1082,7 +1127,7 @@
                         text: `Nézd meg a ${serverName.textContent} Minecraft szerver státuszát!`,
                         url: window.location.href
                     }).catch(err => {
-                        console.log('Error sharing:', err);
+                        console.log('Hiba a megosztás során:', err);
                     });
                 } else {
                     // Fallback for browsers that don't support Web Share API

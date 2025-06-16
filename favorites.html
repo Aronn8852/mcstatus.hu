@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kedvencek | Mcstatus.hu</title>
+    <meta name="description" content="Kedvenc Minecraft szervereid listája - Mcstatus.hu">
+    <meta name="keywords" content="minecraft, szerver, státusz, kedvencek, mcstatus">
+    <meta name="author" content="Aronn">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
@@ -61,7 +64,6 @@
             justify-content: space-between;
             gap: 1rem;
             flex-wrap: wrap;
-
         }
 
         .header-container {
@@ -146,10 +148,8 @@
             margin: 0 auto;
             width: 100%;
             margin-top: 80px;
-            /* Add margin to prevent content from being hidden behind fixed header */
         }
 
-        /* Page Header Styles */
         .page-header {
             background: linear-gradient(135deg, rgba(0, 230, 118, 0.1), transparent);
             border-radius: 0.75rem;
@@ -174,7 +174,24 @@
             font-size: 1rem;
         }
 
-        /* Favorites Page Styles */
+        .sort-controls {
+            margin: 1rem auto;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .sort-select {
+            background-color: var(--surface-dark);
+            color: var(--on-surface);
+            border: 1px solid var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+
         .favorites-container {
             background-color: var(--surface);
             border-radius: 0.75rem;
@@ -202,10 +219,17 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
         }
 
+        .favorite-item-remove {
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
         .favorite-name {
             font-weight: 600;
             color: var(--on-surface);
             margin-bottom: 0.5rem;
+            word-break: break-word;
         }
 
         .favorite-status {
@@ -316,6 +340,21 @@
             max-width: 500px;
         }
 
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: var(--on-primary);
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
         .app-footer {
             background-color: var(--surface-dark);
             padding: 2rem;
@@ -383,7 +422,6 @@
             .main-content {
                 padding: 1rem;
                 margin-top: 120px;
-                /* Adjust for the larger header on mobile */
             }
 
             .favorites-grid {
@@ -406,6 +444,15 @@
 
             .favorites-container {
                 padding: 1rem;
+            }
+
+            .favorite-actions {
+                flex-direction: column;
+            }
+            
+            .primary-btn.small, .copy-btn {
+                width: 100%;
+                justify-content: center;
             }
 
             .footer-links,
@@ -442,9 +489,20 @@
                 <p>Az Ön által mentett Minecraft szerverek listája</p>
             </div>
 
+            <div class="sort-controls">
+                <select id="sort-select" class="sort-select">
+                    <option value="name-asc">Név (A-Z)</option>
+                    <option value="name-desc">Név (Z-A)</option>
+                    <option value="status">Státusz</option>
+                </select>
+                <button id="refresh-all" class="primary-btn">
+                    <i class="fas fa-sync-alt"></i> Összes frissítése
+                </button>
+            </div>
+
             <div class="favorites-container">
                 <div id="favorites-list" class="favorites-grid">
-                    <!-- Dynamically filled by JavaScript -->
+                    <!-- Dinamikusan töltődik JavaScript segítségével -->
                 </div>
 
                 <div id="empty-favorites" class="empty-state">
@@ -479,98 +537,24 @@
         document.addEventListener('DOMContentLoaded', () => {
             const favoritesList = document.getElementById('favorites-list');
             const emptyState = document.getElementById('empty-favorites');
+            const sortSelect = document.getElementById('sort-select');
+            const refreshAllBtn = document.getElementById('refresh-all');
 
-            // Load favorites from localStorage
-            let favoriteServers = JSON.parse(localStorage.getItem('favoriteServers')) || [];
-
-            // Render favorites
-            function renderFavorites() {
-                favoritesList.innerHTML = '';
-
-                if (favoriteServers.length === 0) {
-                    emptyState.style.display = 'flex';
-                    return;
-                }
-
-                emptyState.style.display = 'none';
-
-                favoriteServers.forEach(server => {
-                    const favoriteItem = document.createElement('div');
-                    favoriteItem.className = 'favorite-item';
-
-                    favoriteItem.innerHTML = `
-                        <button class="favorite-btn remove-fav" data-ip="${server.ip}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <h4 class="favorite-name">${server.ip}</h4>
-                        <span class="favorite-status ${server.online ? 'online' : 'offline'}">
-                            ${server.online ? 'Online' : 'Offline'}
-                        </span>
-                        <div class="favorite-actions">
-                            <button class="primary-btn small check-fav" data-ip="${server.ip}">
-                                <i class="fas fa-sync-alt"></i> Ellenőrzés
-                            </button>
-                            <button class="copy-btn" data-ip="${server.ip}">
-                                <i class="far fa-copy"></i> Másolás
-                            </button>
-                        </div>
-                    `;
-
-                    favoritesList.appendChild(favoriteItem);
-                });
-
-                // Add event listeners
-                document.querySelectorAll('.check-fav').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const ip = e.currentTarget.getAttribute('data-ip');
-                        window.location.href = `index.html?server=${encodeURIComponent(ip)}`;
-                    });
-                });
-
-                document.querySelectorAll('.copy-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        const ip = e.currentTarget.getAttribute('data-ip');
-                        navigator.clipboard.writeText(ip).then(() => {
-                            const originalText = e.currentTarget.innerHTML;
-                            e.currentTarget.innerHTML = '<i class="fas fa-check"></i> Másolva!';
-
-                            setTimeout(() => {
-                                e.currentTarget.innerHTML = originalText;
-                            }, 2000);
-                        });
-                    });
-                });
-
-                // Törlés gomb eseménykezelő
-                document.querySelectorAll('.remove-fav').forEach(btn => {
-                    btn.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const ip = this.getAttribute('data-ip');
-                        removeFavorite(ip);
-                    });
-                });
+            // Segédfüggvények
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
             }
 
-            // Remove favorite
-            function removeFavorite(ip) {
-                console.log("Removing server:", ip);
-                favoriteServers = favoriteServers.filter(server => server.ip !== ip);
-                localStorage.setItem('favoriteServers', JSON.stringify(favoriteServers));
-                renderFavorites();
-
-                // Visszajelzés a felhasználónak
+            function showNotification(message, isSuccess = true) {
                 const notification = document.createElement('div');
-                notification.style.position = 'fixed';
-                notification.style.bottom = '20px';
-                notification.style.right = '20px';
-                notification.style.backgroundColor = 'var(--primary)';
-                notification.style.color = 'var(--on-primary)';
-                notification.style.padding = '12px 20px';
-                notification.style.borderRadius = '4px';
-                notification.style.boxShadow = 'var(--shadow)';
-                notification.style.zIndex = '1000';
-                notification.innerHTML = `<i class="fas fa-check"></i> Szerver eltávolítva: ${ip}`;
+                notification.className = 'notification';
+                notification.innerHTML = `
+                    <i class="fas fa-${isSuccess ? 'check' : 'exclamation'}"></i>
+                    ${escapeHtml(message)}
+                `;
+                notification.style.backgroundColor = isSuccess ? 'var(--primary)' : 'var(--error)';
 
                 document.body.appendChild(notification);
 
@@ -580,10 +564,162 @@
                     setTimeout(() => {
                         document.body.removeChild(notification);
                     }, 500);
-                }, 2000);
+                }, 3000);
             }
 
-            // Initial render
+            // LocalStorage kezelés
+            function getFavorites() {
+                try {
+                    return JSON.parse(localStorage.getItem('favoriteServers')) || [];
+                } catch {
+                    return [];
+                }
+            }
+
+            function saveFavorites(favorites) {
+                try {
+                    localStorage.setItem('favoriteServers', JSON.stringify(favorites));
+                    return true;
+                } catch (error) {
+                    console.error("Hiba a kedvencek mentésekor:", error);
+                    showNotification("Hiba történt a kedvencek mentésekor!", false);
+                    return false;
+                }
+            }
+
+            // Szerver státusz ellenőrzése
+            async function checkServerStatus(ip) {
+                try {
+                    const response = await fetch(`https://api.mcsrvstat.us/2/${encodeURIComponent(ip)}`);
+                    if (!response.ok) throw new Error("API hiba");
+                    const data = await response.json();
+                    return data.online || false;
+                } catch (error) {
+                    console.error("Hiba a szerver státusz ellenőrzésekor:", error);
+                    return false;
+                }
+            }
+
+            // Kedvencek renderelése
+            async function renderFavorites() {
+                let favoriteServers = getFavorites();
+                const sortBy = sortSelect?.value || 'name-asc';
+
+                // Rendezés
+                favoriteServers.sort((a, b) => {
+                    if (sortBy === 'name-asc') return a.ip.localeCompare(b.ip);
+                    if (sortBy === 'name-desc') return b.ip.localeCompare(a.ip);
+                    if (sortBy === 'status') return (a.online === b.online) ? 0 : a.online ? -1 : 1;
+                    return 0;
+                });
+
+                favoritesList.innerHTML = '';
+
+                if (favoriteServers.length === 0) {
+                    emptyState.style.display = 'flex';
+                    return;
+                }
+
+                emptyState.style.display = 'none';
+
+                // Státusz frissítése és renderelés
+                for (const server of favoriteServers) {
+                    const isOnline = await checkServerStatus(server.ip);
+                    server.online = isOnline;
+                    
+                    const favoriteItem = document.createElement('div');
+                    favoriteItem.className = 'favorite-item';
+                    favoriteItem.innerHTML = `
+                        <button class="favorite-btn remove-fav" data-ip="${escapeHtml(server.ip)}" title="Eltávolítás">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <h4 class="favorite-name">${escapeHtml(server.ip)}</h4>
+                        <span class="favorite-status ${server.online ? 'online' : 'offline'}">
+                            ${server.online ? 'Online' : 'Offline'}
+                        </span>
+                        <div class="favorite-actions">
+                            <button class="primary-btn small check-fav" data-ip="${escapeHtml(server.ip)}" title="Státusz ellenőrzése">
+                                <i class="fas fa-sync-alt"></i> Ellenőrzés
+                            </button>
+                            <button class="copy-btn" data-ip="${escapeHtml(server.ip)}" title="Másolás vágólapra">
+                                <i class="far fa-copy"></i> Másolás
+                            </button>
+                        </div>
+                    `;
+                    favoritesList.appendChild(favoriteItem);
+                }
+
+                // Eseménykezelők hozzáadása
+                setupEventListeners();
+            }
+
+            // Eseménykezelők beállítása
+            function setupEventListeners() {
+                // Ellenőrzés gomb
+                document.querySelectorAll('.check-fav').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const ip = e.currentTarget.getAttribute('data-ip');
+                        window.location.href = `index.html?server=${encodeURIComponent(ip)}`;
+                    });
+                });
+
+                // Másolás gomb
+                document.querySelectorAll('.copy-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const ip = e.currentTarget.getAttribute('data-ip');
+                        try {
+                            await navigator.clipboard.writeText(ip);
+                            const originalText = e.currentTarget.innerHTML;
+                            e.currentTarget.innerHTML = '<i class="fas fa-check"></i> Másolva!';
+                            setTimeout(() => {
+                                e.currentTarget.innerHTML = originalText;
+                            }, 2000);
+                        } catch (error) {
+                            showNotification("Hiba a másolás során!", false);
+                        }
+                    });
+                });
+
+                // Törlés gomb
+                document.querySelectorAll('.remove-fav').forEach(btn => {
+                    btn.addEventListener('click', async function(e) {
+                        e.preventDefault();
+                        const ip = this.getAttribute('data-ip');
+                        const favoriteItem = this.closest('.favorite-item');
+                        
+                        // Animáció
+                        favoriteItem.classList.add('favorite-item-remove');
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                        
+                        // Törlés
+                        let favorites = getFavorites();
+                        favorites = favorites.filter(server => server.ip !== ip);
+                        if (saveFavorites(favorites)) {
+                            showNotification(`Szerver eltávolítva: ${ip}`);
+                            renderFavorites();
+                        }
+                    });
+                });
+            }
+
+            // Rendezés változás
+            sortSelect?.addEventListener('change', () => {
+                renderFavorites();
+            });
+
+            // Összes frissítése
+            refreshAllBtn?.addEventListener('click', async () => {
+                refreshAllBtn.disabled = true;
+                refreshAllBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Frissítés...';
+                
+                await renderFavorites();
+                
+                refreshAllBtn.disabled = false;
+                refreshAllBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Összes frissítése';
+                showNotification("Mindegyik szerver státusza frissítve!");
+            });
+
+            // Inicializálás
             renderFavorites();
         });
     </script>
